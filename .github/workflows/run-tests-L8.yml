@@ -35,10 +35,25 @@ jobs:
           extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
           coverage: none
 
+      - name: Show PHP version
+        run: php -v
+
+      - name: Create SQLite testing db for Unit Tests
+        run: mkdir -p database && touch database/testing.sqlite
+
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "symfony/console:>=4.3.4" --no-interaction --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
-      - name: Execute tests
-        run: vendor/bin/phpunit
+      - name: Prepare the application
+        run: |
+          cp .env.acceptance .env
+          php artisan key:generate
+
+      - name: Run phpunit suite (unit tests and feature tests)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/testing.sqlite
+          # DB_PASSWORD: root
+        run: php vendor/bin/phpunit
