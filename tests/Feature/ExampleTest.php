@@ -2,11 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Spatie\Permission\Models\Permission;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * A basic test example.
      *
@@ -14,8 +19,15 @@ class ExampleTest extends TestCase
      */
     public function test_example()
     {
-        $response = $this->get('/');
+        $users = User::all();
 
-        $response->assertStatus(200);
+        $this->assertEquals(11, count($users));
+    }
+
+    public function test_permissions_found()
+    {
+        $permission = Permission::findByName('index dashboard');
+
+        $this->assertNotNull($permission);
     }
 }
